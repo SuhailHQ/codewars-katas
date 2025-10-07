@@ -1,0 +1,39 @@
+Exercise 7: Array of structs
+// Create an array of 3 person structs (from Exercise 5)
+// - Allocate memory for the array
+// - Fill each struct with data
+// - Print all data
+// - Free everything
+
+
+typedef struct s_person
+{
+    char *name;
+    int age;
+} t_person;
+
+
+int main()
+{
+  t_person *people; -> Here we created a variable named people. It is a pointer to the first element in an array of people (structs).
+
+  people = malloc(sizeof(t_person) * 3); -> Here we have used malloc to reserve space in heap memory for three t_person elements.
+
+  sizeof(t_person) -> Contains:
+    char *name (8 bytes)
+    int age (4 bytes)
+    total = 12 bytes (but actually it could be 16 bytes due to padding).
+
+  sizeof(t_person) * 3 → means we reserve space for 3 people.
+  🔸 malloc returns the address of the first byte of this space. So we store it in people.
+Heap Memory:
+┌──────────────────────┬──────────────────────┬──────────────────────┐
+│  people[0]           │  people[1]           │  people[2]           │
+├──────────────────────┼──────────────────────┼──────────────────────┤
+│ name (pointer)       │ name (pointer)       │ name (pointer)       │
+│ age (int)            │ age (int)            │ age (int)            │
+└──────────────────────┴──────────────────────┴──────────────────────┘
+🔸 The *people pointer in stack points to the first element of this array in heap.
+
+
+}
