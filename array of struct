@@ -6,18 +6,18 @@ Exercise 7: Array of structs
 // - Free everything
 
 
-typedef struct s_person
+🔸 typedef struct s_person
 {
     char *name;
     int age;
 } t_person;
 
 
-int main()
+🔸 int main()
 {
-  t_person *people; -> Here we created a variable named people. It is a pointer to the first element in an array of people (structs).
+ 🔸 t_person *people; -> Here we created a variable named people. It is a pointer to the first element in an array of people (structs).
 
-  people = malloc(sizeof(t_person) * 3); -> Here we have used malloc to reserve space in heap memory for three t_person elements.
+ 🔸 people = malloc(sizeof(t_person) * 3); -> Here we have used malloc to reserve space in heap memory for three t_person elements.
 
   sizeof(t_person) -> Contains:
     char *name (8 bytes)
@@ -25,7 +25,7 @@ int main()
     total = 12 bytes (but actually it could be 16 bytes due to padding).
 
   sizeof(t_person) * 3 → means we reserve space for 3 people.
-  🔸 malloc returns the address of the first byte of this space. So we store it in people.
+  malloc returns the address of the first byte of this space. So we store it in people.
 Heap Memory:
 ┌──────────────────────┬──────────────────────┬──────────────────────┐
 │  people[0]           │  people[1]           │  people[2]           │
@@ -33,7 +33,89 @@ Heap Memory:
 │ name (pointer)       │ name (pointer)       │ name (pointer)       │
 │ age (int)            │ age (int)            │ age (int)            │
 └──────────────────────┴──────────────────────┴──────────────────────┘
-🔸 The *people pointer in stack points to the first element of this array in heap.
+The *people pointer in stack points to the first element of this array in heap.
+Now 8people points to the first struct in that memory.
+Stack:
+people ────▶ [ person0 ][ person1 ][ person2 ]   (in heap)
 
+Each person contains:
+    name → pointer (not yet assigned)
+    age → int (not yet initialized)
 
+🔸 people[0].name = malloc(strlen("suhail") + 1);
+    Why malloc again? 🤔
+The answer 👇
+    Inside each t_person, there is a variable char *name.
+    It's just a pointer; it doesn't have a physical place to store characters.
+If you try now to do: strcpy(people[0].name, "Suhail");
+    Without allocating memory for it, a crash (segmentation fault) will occur because you are writing to an unknown address.
+    So you should reserve separate memory for the name itself.
+
+malloc(strlen("suhail") + 1);
+Heap:
+person0.name ─────▶ ['S','u','h','a','i','l','\0']
+
+🧠 Final result in memory:
+Stack:
+┌────────────────────┐
+│ people             │──────────────┐
+└────────────────────┘              │
+                                   ▼
+Heap:
+┌──────────────────────────────────────────────────────────┐
+│ [ person0 ][ person1 ][ person2 ]                        │
+│   ┌────────────┐                                          │
+│   │ name ---> ───────────────────▶ ['S','u','h','a','i','l','\0'] │
+│   │ age = 20   │                                          │
+│   └────────────┘                                          │
+└──────────────────────────────────────────────────────────┘
+}
+the Solution: 
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
+typedef struct s_person
+{
+    char *name;
+    int age;
+} t_person;
+
+int main()
+{
+    t_person *people;
+    int i = 0;
+    
+    people = malloc(sizeof(t_person) * 3);
+    if (!people)
+        return 1;
+
+    people[0].name = malloc(strlen("suhail") + 1);
+    strcpy(people[0].name, "Suhail");
+    people[0].age = 20;
+
+    people[1].name = malloc(strlen("aya") + 1);
+    strcpy(people[1].name, "aya");
+    people[1].age = 19;
+
+    people[2].name = malloc(strlen("ahlam") + 1);
+    strcpy(people[2].name, "ahlam");
+    people[2].age = 6;
+    
+    // print
+    while (i < 3)
+    {
+        printf("your name is %s, your age is %d\n", people[i].name, people[i].age);
+        i++;
+    }
+    
+    // free
+    i = 0;
+    while (i < 3)
+    {
+        free(people[i].name);
+        i++;
+    }
+    free(people);
 }
